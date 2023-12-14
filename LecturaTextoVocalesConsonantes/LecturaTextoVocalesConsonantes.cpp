@@ -42,7 +42,7 @@ int main() {
     archivo.imbue(std::locale(std::locale(), new std::codecvt_utf8<wchar_t>)); // Establece el locale para UTF-8
 
     if (!archivo.is_open()) {
-        std::wcerr << L"Error al abrir el archivo" << std::endl;
+        std::cerr << "Error al abrir el archivo" << std::endl;
         return 1;
     }
 
