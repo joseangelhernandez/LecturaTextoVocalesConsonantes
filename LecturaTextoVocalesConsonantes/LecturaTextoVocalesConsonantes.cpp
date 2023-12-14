@@ -1,71 +1,75 @@
 // LecturaTextoVocalesConsonantes.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#include <iostream> // Incluye las funciones básicas de entrada y salida.
-#include <fstream>  // Incluye las funciones para manejar archivos.
-#include <map>      // Incluye la biblioteca para usar contenedores de tipo mapa.
-#include <string>   // Incluye la biblioteca para usar el tipo de dato string.
-#include <cctype>   // Incluye funciones para manejar caracteres.
-#include <cwchar>   // Incluye funciones y tipos para manejar caracteres anchos.
+#include <iostream> // Incluye las funciones básicas de entrada y salida
+#include <fstream>  // Incluye las funciones para manejar archivos
+#include <string>   // Incluye la biblioteca para usar el tipo de dato string
+#include <cctype>   // Incluye funciones para manejar el capCase caracteres
 
-// Función que determina si un carácter es una vocal.
+// Función que determina si un carácter es una vocal
 bool esVocal(char c) {
-    std::string vocales = "aeiouáéíóúàèìòùü"; // Define un string con todas las vocales, incluyendo acentuadas y diéresis.
-    return vocales.find(c) != std::string::npos; // Busca el carácter en el string de vocales y retorna verdadero si lo encuentra.
+    std::string vocales = "aeiouáéíóúàèìòùü"; // Define un string con todas las vocales, incluyendo acentuadas y diéresis
+    return vocales.find(c) != std::string::npos; // Busca el carácter en el string de vocales y retorna verdadero si lo encuentra
 }
 
-// Función que determina si un carácter es alfabético.
+// Función que determina si un carácter es alfabético
 bool esAlfabetico(char c) {
-    // Comprueba si el carácter está en el rango de letras mayúsculas, minúsculas o acentuadas.
+    // Comprueba si el carácter está en el rango de letras mayúsculas, minúsculas o acentuadas
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
         (c >= 'Á' && c <= 'Ú') || (c >= 'á' && c <= 'ú') ||
         std::wstring(L"ÀÈÌÒÙàèìòùÜü").find(c) != std::string::npos;
 }
 
 int main() {
-    std::ifstream archivo("texto.txt"); // Abre el archivo de texto.
-    // Verifica si el archivo se abrió correctamente.
+    std::ifstream archivo("texto.txt"); // Abre el archivo de texto
+    // Verifica si el archivo se abrió correctamente
     if (!archivo.is_open()) {
         std::cerr << "Error al abrir el archivo" << std::endl;
         return 1;
     }
 
-    // Lee todo el contenido del archivo en un string.
+    // Lee todo el contenido del archivo en un string
     std::string texto((std::istreambuf_iterator<char>(archivo)), std::istreambuf_iterator<char>());
-    archivo.close(); // Cierra el archivo.
+    archivo.close(); // Cierra el archivo
 
-    std::map<char, int> contadorVocales; // Mapa para contar la ocurrencia de cada vocal.
-    int contadorConsonantes = 0; // Contador para las consonantes.
-    int totalLetras = 0; // Contador para el total de letras alfabéticas.
+    // Contadores para las vocales y consonantes
+    int contadorConsonantes = 0, totalVocales = 0, totalLetras = 0;
+    int a = 0, e = 0, i = 0, o = 0, u = 0; // Contadores para cada vocal
 
-    // Recorre cada carácter del texto.
+    // Recorre cada carácter del texto
     for (char c : texto) {
-        char cMin = std::tolower(c); // Convierte el carácter a minúscula.
-        // Comprueba si el carácter es alfabético.
+        char cMin = std::tolower(c);// Convierte el carácter a minúscula
+        // Comprueba si el carácter es alfabético
         if (esAlfabetico(cMin)) {
-            // Si es una vocal, incrementa el contador correspondiente en el mapa.
-            if (esVocal(cMin)) {
-                contadorVocales[cMin]++;
-                totalLetras++;
+            totalLetras++; // Incrementa el contador total de letras
+            if (esVocal(cMin)) { // Si es una vocal...
+                totalVocales++; // Incrementa el contador de vocales
+                // Incrementa el contador de la vocal específica
+                if (cMin == 'a') a++;
+                else if (cMin == 'e') e++;
+                else if (cMin == 'i') i++;
+                else if (cMin == 'o') o++;
+                else if (cMin == 'u') u++;
             }
-            // Si no es una vocal, es una consonante.
-            else {
+            else { // Si no es una vocal, es una consonante
                 contadorConsonantes++;
-                totalLetras++;
             }
         }
     }
 
-    // Calcula el porcentaje total de vocales.
-    double porcentajeTotalVocales = totalLetras > 0 ? 100.0 * (totalLetras - contadorConsonantes) / totalLetras : 0;
+    // Calcula el porcentaje total de vocales
+    double porcentajeTotalVocales = totalLetras > 0 ? 100.0 * totalVocales / totalLetras : 0;
 
-    // Muestra los resultados.
+    // Muestra los resultados
     std::cout << "Consonantes: " << contadorConsonantes << std::endl;
-    for (auto const par : contadorVocales) {
-        std::cout << "Vocal " << par.first << ": " << par.second << " veces, ";
-        std::cout << (100.0 * par.second / totalLetras) << "% del total" << std::endl;
-    }
+    // Muestra el conteo y el porcentaje para cada vocal
+    std::cout << "Vocales A: " << a << ", " << (100.0 * a / totalLetras) << "% del total" << std::endl;
+    std::cout << "Vocales E: " << e << ", " << (100.0 * e / totalLetras) << "% del total" << std::endl;
+    std::cout << "Vocales I: " << i << ", " << (100.0 * i / totalLetras) << "% del total" << std::endl;
+    std::cout << "Vocales O: " << o << ", " << (100.0 * o / totalLetras) << "% del total" << std::endl;
+    std::cout << "Vocales U: " << u << ", " << (100.0 * u / totalLetras) << "% del total" << std::endl;
     std::cout << "Porcentaje total de vocales: " << porcentajeTotalVocales << "%" << std::endl;
+
 }
 
 
