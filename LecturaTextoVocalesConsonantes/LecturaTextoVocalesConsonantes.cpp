@@ -1,16 +1,18 @@
 // LecturaTextoVocalesConsonantes.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#include <iostream>
-#include <fstream>
-#include <codecvt>   // Para std::codecvt_utf8
-#include <locale>    // Para std::locale
-#include <string>
-#include <cctype>
+#include <iostream>    // Biblioteca estándar de C++ para operaciones de entrada/salida
+#include <fstream>     // Biblioteca para manejo de archivos
+#include <codecvt>     // Biblioteca para convertir entre diferentes codificaciones de caracteres, como UTF-8
+#include <locale>      // Biblioteca para configurar la localización que afecta el formato de entrada/salida
+#include <string>      // Biblioteca para manejar cadenas de caracteres (strings)
+#include <cctype>      // Biblioteca para funciones de manipulación de capCase especificamente
 
-// Convierte vocales acentuadas o con diéresis a su forma básica
+// Función que normaliza vocales con acentos o diéresis a su forma básica
 char normalizarVocal(char c) {
+    // Comprueba si el carácter es una vocal con acento o diéresis
     if (std::string("áéíóúàèìòùâêîôûäëïöü").find(c) != std::string::npos) {
+        // Convierte la vocal acentuada o con diéresis a su forma básica
         switch (c) {
         case 'á': case 'à': case 'â': case 'ä': return 'a';
         case 'é': case 'è': case 'ê': case 'ë': return 'e';
@@ -25,39 +27,46 @@ char normalizarVocal(char c) {
 
 // Función que determina si un carácter es una vocal
 bool esVocal(char c) {
-    std::string vocales = "aeiou"; // Solo vocales básicas
-    return vocales.find(c) != std::string::npos;
+    std::string vocales = "aeiou"; // Define un string con las vocales básicas
+    return vocales.find(c) != std::string::npos; // Verifica si la vocal está en el string
 }
 
 // Función que determina si un carácter es alfabético
 bool esAlfabetico(char c) {
     // Comprueba si el carácter está en el rango de letras alfabéticas
-    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= 'Á' && c <= 'Ú') || (c >= 'á' && c <= 'ú') || (c == 'ü')
-        || (c == 'Ü');
-        
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+        (c >= 'Á' && c <= 'Ú') || (c >= 'á' && c <= 'ú') ||
+        (c == 'ü') || (c == 'Ü');
 }
 
 int main() {
-    std::wifstream archivo("texto.txt");
-    archivo.imbue(std::locale(std::locale(), new std::codecvt_utf8<wchar_t>)); // Establece el locale para UTF-8
+    std::wifstream archivo("texto.txt");  // Abre el archivo de texto en modo lectura
+    // Establece el locale para UTF-8 para manejar correctamente caracteres Unicode
+    archivo.imbue(std::locale(std::locale(), new std::codecvt_utf8<wchar_t>()));
 
+    // Verifica si el archivo se abrió correctamente
     if (!archivo.is_open()) {
         std::cerr << "Error al abrir el archivo" << std::endl;
         return 1;
     }
 
+    // Lee todo el contenido del archivo en un wstring (string de caracteres anchos)
     std::wstring texto((std::istreambuf_iterator<wchar_t>(archivo)), std::istreambuf_iterator<wchar_t>());
-    archivo.close();
+    archivo.close(); // Cierra el archivo.
 
+    // Contadores para las vocales, consonantes y el total de letras
     int contadorConsonantes = 0, totalVocales = 0, totalLetras = 0;
     int a = 0, e = 0, i = 0, o = 0, u = 0;
 
-    for (char c : texto) {
+    // Recorre cada carácter del texto
+    for (wchar_t wc : texto) {
+        char c = static_cast<char>(wc); // Convierte wchar_t a char para simplificar la manipulación
         if (esAlfabetico(c)) {
-            totalLetras++;
-            char cMin = normalizarVocal(std::tolower(c));
-            if (esVocal(cMin)) {
-                totalVocales++;
+            totalLetras++; // Incrementa el contador de letras totales
+            char cMin = normalizarVocal(std::tolower(c)); // Normaliza y convierte a minúscula
+            if (esVocal(cMin)) { // Si es una vocal...
+                totalVocales++; // Incrementa el contador de vocales
+                // Incrementa el contador de la vocal específica
                 switch (cMin) {
                 case 'a': a++; break;
                 case 'e': e++; break;
@@ -67,14 +76,17 @@ int main() {
                 }
             }
             else {
-                contadorConsonantes++;
+                contadorConsonantes++; // Incrementa el contador de consonantes si no es una vocal
             }
         }
     }
 
+    // Calcula el porcentaje total de vocales
     double porcentajeTotalVocales = totalLetras > 0 ? 100.0 * totalVocales / totalLetras : 0;
 
+    // Muestra los resultados
     std::cout << "Consonantes: " << contadorConsonantes << std::endl;
+    // Muestra el conteo y porcentaje de cada vocal
     std::cout << "Vocales A: " << a << ", " << (100.0 * a / totalLetras) << "% del total" << std::endl;
     std::cout << "Vocales E: " << e << ", " << (100.0 * e / totalLetras) << "% del total" << std::endl;
     std::cout << "Vocales I: " << i << ", " << (100.0 * i / totalLetras) << "% del total" << std::endl;
